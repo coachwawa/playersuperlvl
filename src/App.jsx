@@ -552,7 +552,7 @@ function PageCoaching({ role, session, joueurs, messages, setMessages, programme
 
   function addProg() {
     if(!progForm.titre||!progForm.contenu) return;
-    const j=joueurs.find(x=>x.id==progForm.joueurId);
+    const j=joueurs.find(x=>x.id===Number(progForm.joueurId));
     setProgrammes(p=>[...p,{id:Date.now(),...progForm,joueurId:Number(progForm.joueurId),joueur:j?.prenom+" "+j?.nom,date:new Date().toISOString().split("T")[0],retour:""}]);
     showToast("Programme envoyé ✅"); setProgModal(false); setProgForm({titre:"",contenu:"",joueurId:joueurs[0]?.id||""});
   }
