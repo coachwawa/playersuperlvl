@@ -113,7 +113,7 @@ function LoginPage({ joueurs, setJoueurs, onLogin, showToast, toast }) {
   const [nForm, setNForm] = useState({ prenom:"", nom:"", dateNaissance:"", code:"" });
 
   function loginCoach() {
-    if (coachPwd === "wawa2024") { onLogin({ role:"coach" }); }
+    if (coachPwd === "2402") { onLogin({ role:"coach" }); }
     else { setErreur("Mot de passe incorrect"); }
   }
 
