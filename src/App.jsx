@@ -246,10 +246,10 @@ export default function App() {
   const role = session?.role || "client";
 
   const NAV = [
-    { id:"reservation", label:"📅 Réservation" },
-    { id:"coaching", label:"🎥 Coaching en ligne" },
-    { id:"fiche", label:"📋 Fiche joueur" },
-    { id:"nutrition", label:"🥗 Alimentation" },
+    { id:"reservation", label:"Réservation", emoji:"📅" },
+    { id:"coaching",    label:"Coaching",    emoji:"🎥" },
+    { id:"fiche",       label:"Fiche",       emoji:"📋" },
+    { id:"nutrition",   label:"Nutrition",   emoji:"🥗" },
   ];
 
   if (!session) return <LoginPage joueurs={joueurs} setJoueurs={setJoueurs} onLogin={setSession} showToast={showToast} toast={toast} />;
@@ -259,50 +259,73 @@ export default function App() {
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         input:focus,textarea:focus,select:focus{border-color:#FF6B35!important;box-shadow:0 0 0 3px #FF6B3520}
-        button:hover{opacity:.85}
+        button:active{opacity:.75}
         ::-webkit-scrollbar{width:6px;height:6px}
         ::-webkit-scrollbar-thumb{background:#ddd;border-radius:3px}
         @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
         .fade{animation:fadeIn .3s ease}
         @keyframes slideUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:none}}
         .slideUp{animation:slideUp .35s ease}
+        body{padding-bottom:env(safe-area-inset-bottom)}
       `}</style>
 
-      {/* HEADER */}
-      <header style={s.header}>
-        <div style={s.headerIn}>
-          <div style={s.logo}>
-            <span style={s.logoBall}>🏀</span>
+      {/* HEADER compact mobile */}
+      <header style={{...s.header, padding:"0 16px"}}>
+        <div style={{display:"flex", alignItems:"center", justifyContent:"space-between", height:54, maxWidth:900, margin:"0 auto", width:"100%"}}>
+          <div style={{display:"flex", alignItems:"center", gap:8}}>
+            <span style={{fontSize:22}}>🏀</span>
             <div>
-              <div style={s.logoTitle}>PlayerSuperLvl</div>
-              <div style={s.logoSub}>by Coach Wawa</div>
+              <div style={{fontFamily:"'Barlow Condensed',sans-serif", fontWeight:900, fontSize:16, color:"#fff", letterSpacing:0.5, lineHeight:1}}>PlayerSuperLvl</div>
+              <div style={{fontSize:8, color:C.orange, letterSpacing:2, textTransform:"uppercase"}}>by Coach Wawa</div>
             </div>
           </div>
-          <nav style={s.navWrap}>
-            {NAV.map(n=>(
-              <button key={n.id} style={s.navBtn(page===n.id)} onClick={()=>setPage(n.id)}>{n.label}</button>
-            ))}
-          </nav>
-          <div style={{display:"flex",alignItems:"center",gap:10}}>
-            <div style={{fontSize:12,color:"#aaa"}}>
-              {role==="coach" ? "🎽 Coach Wawa" : `👤 ${joueurs.find(j=>j.id===session.joueurId)?.prenom||"Client"}`}
+          <div style={{display:"flex", alignItems:"center", gap:8}}>
+            <div style={{fontSize:12, color:"#aaa"}}>
+              {role==="coach" ? "🎽 Coach Wawa" : `👤 ${joueurs.find(j=>j.id===session.joueurId)?.prenom||""}`}
             </div>
-            <button style={{...s.btnGhost,fontSize:12,padding:"5px 12px",color:"#aaa",borderColor:"#333"}} onClick={()=>{setSession(null);setPage("reservation");}}>
-              Déconnexion
+            <button style={{background:"transparent", border:"1px solid #444", borderRadius:6, padding:"4px 10px", color:"#aaa", fontSize:11, fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, cursor:"pointer"}}
+              onClick={()=>{setSession(null);setPage("reservation");}}>
+              Quitter
             </button>
           </div>
         </div>
       </header>
 
-      <main style={s.main} className="fade">
+      {/* CONTENU — padding bas pour la nav */}
+      <main style={{...s.main, paddingBottom:80}} className="fade">
         {page==="reservation" && <PageReservation role={role} session={session} reservations={reservations} setReservations={setReservations} showToast={showToast} joueurs={joueurs} />}
         {page==="coaching"   && <PageCoaching role={role} session={session} joueurs={joueurs} messages={messages} setMessages={setMessages} programmes={programmes} setProgrammes={setProgrammes} showToast={showToast} />}
         {page==="fiche"      && <PageFiche role={role} session={session} joueurs={joueurs} setJoueurs={setJoueurs} showToast={showToast} />}
         {page==="nutrition"  && <PageNutrition role={role} session={session} joueurs={joueurs} repas={repas} setRepas={setRepas} showToast={showToast} />}
       </main>
 
+      {/* BARRE DE NAVIGATION BAS — style appli mobile */}
+      <nav style={{
+        position:"fixed", bottom:0, left:0, right:0, zIndex:100,
+        background:C.black, borderTop:"1px solid #222",
+        display:"flex", alignItems:"stretch",
+        paddingBottom:"env(safe-area-inset-bottom)",
+        boxShadow:"0 -4px 20px rgba(0,0,0,.4)"
+      }}>
+        {NAV.map(n=>(
+          <button key={n.id} onClick={()=>setPage(n.id)} style={{
+            flex:1, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center",
+            gap:3, padding:"10px 4px 12px", border:"none", background:"transparent", cursor:"pointer",
+            borderTop: page===n.id ? `2px solid ${C.orange}` : "2px solid transparent",
+            transition:"all .15s"
+          }}>
+            <span style={{fontSize:20}}>{n.emoji}</span>
+            <span style={{
+              fontFamily:"'Barlow Condensed',sans-serif", fontWeight:700, fontSize:10,
+              letterSpacing:.5, textTransform:"uppercase",
+              color: page===n.id ? C.orange : "#666"
+            }}>{n.label}</span>
+          </button>
+        ))}
+      </nav>
+
       {toast && (
-        <div style={{position:"fixed",bottom:24,left:"50%",transform:"translateX(-50%)",background:C.black,color:C.white,padding:"12px 24px",borderRadius:10,fontSize:14,fontWeight:600,zIndex:300,boxShadow:"0 8px 30px rgba(0,0,0,.3)"}} className="slideUp">
+        <div style={{position:"fixed",bottom:80,left:"50%",transform:"translateX(-50%)",background:C.black,color:C.white,padding:"12px 24px",borderRadius:10,fontSize:14,fontWeight:600,zIndex:300,boxShadow:"0 8px 30px rgba(0,0,0,.3)",whiteSpace:"nowrap"}} className="slideUp">
           {toast}
         </div>
       )}
