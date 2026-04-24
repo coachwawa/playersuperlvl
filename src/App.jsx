@@ -251,11 +251,27 @@ export default function App() {
     { id:"fiche",       label:"Fiche",       emoji:"📋" },
     { id:"nutrition",   label:"Nutrition",   emoji:"🥗" },
   ];
+  const NAV_IDS = NAV.map(n=>n.id);
+
+  // Swipe gauche/droite pour changer d'onglet
+  const [touchStartX, setTouchStartX] = useState(null);
+
+  function handleTouchStart(e) {
+    setTouchStartX(e.touches[0].clientX);
+  }
+  function handleTouchEnd(e) {
+    if (touchStartX === null) return;
+    const diff = touchStartX - e.changedTouches[0].clientX;
+    const idx = NAV_IDS.indexOf(page);
+    if (diff > 60 && idx < NAV_IDS.length - 1) setPage(NAV_IDS[idx + 1]); // swipe gauche → suivant
+    if (diff < -60 && idx > 0) setPage(NAV_IDS[idx - 1]);                  // swipe droite → précédent
+    setTouchStartX(null);
+  }
 
   if (!session) return <LoginPage joueurs={joueurs} setJoueurs={setJoueurs} onLogin={setSession} showToast={showToast} toast={toast} />;
 
   return (
-    <div style={s.app}>
+    <div style={s.app} onTouchStart={handleTouchStart} onTouchEnd={handleTouchEnd}>
       <style>{`
         *{box-sizing:border-box;margin:0;padding:0}
         input:focus,textarea:focus,select:focus{border-color:#FF6B35!important;box-shadow:0 0 0 3px #FF6B3520}
